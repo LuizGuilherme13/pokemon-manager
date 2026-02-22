@@ -1,3 +1,30 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .hidden {
   display: none;
+}
+
+.name {
+  text-align: center;
+}
+
+.li {
+  cursor: pointer;
+  display: inline-block;
+  margin: 10px;
+  border: 1px solid;
+  padding: 5px;
+  max-width: 108px;
+  max-height: 157px;
+}
+
+.types {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 12px;
 }

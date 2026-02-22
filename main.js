@@ -1,5 +1,5 @@
 async function getPokemon() {
-  const url = "https://pokeapi.co/api/v2/pokemon?limit=60&offset=0"
+  const url = "https://pokeapi.co/api/v2/pokemon?limit=151&offset=0"
 
   try {
     const response = await fetch(url)
@@ -11,6 +11,7 @@ async function getPokemon() {
     const result = await response.json()
 
     await populateList(result)
+    clickToFav()
 
   } catch (error) {
     console.error(error.message)
@@ -38,18 +39,23 @@ async function populateList(pokemon) {
   const list = document.getElementById("list")
 
   for (let i = 0; i < pokemon.results.length; i++) {
-    const li = document.createElement("li")
+    const li = document.createElement("div")
+    const img = document.createElement("img")
     const name = document.createElement("div")
-    name.classList.add("name")
+    const types = document.createElement("div")
 
     const details = await detailPokemon(pokemon.results[i].url)
-    // console.log(details.types)
 
-    //#${pokemon.results[i].url.substring(34, pokemon.results[i].url.length - 1)}
+    li.id = pokemon.results[i].url.substring(34, pokemon.results[i].url.length - 1)
+    li.classList.add("li")
+
+    img.setAttribute("src", details.sprites.front_default)
+    li.appendChild(img)
+
+    name.classList.add("name")
     name.appendChild(document.createTextNode(`${pokemon.results[i].name}`))
     li.appendChild(name)
 
-    const types = document.createElement("div")
     types.classList.add("types")
 
     for (let j = 0; j < details.types.length; j++) {
@@ -66,11 +72,11 @@ async function populateList(pokemon) {
 }
 
 function filterByName() {
-  const pokemon = document.querySelectorAll("#list li")
+  const pokemon = document.querySelectorAll("#list .li")
   const input = document.getElementById("search")
 
   for (let i = 0; i < pokemon.length; i++) {
-    console.log(pokemon[i].getElementsByClassName("name")[0].textContent)
+    // console.log(pokemon[i].getElementsByClassName("name")[0].textContent)
 
     if (!pokemon[i].getElementsByClassName("name")[0].textContent.includes(input.value)) {
       pokemon[i].classList.add("hidden")
@@ -118,7 +124,7 @@ function populateDropdown(types) {
 
 function filterByType() {
   const dropdown = document.getElementById("types")
-  const pokemon = document.querySelectorAll("#list li")
+  const pokemon = document.querySelectorAll("#list .li")
 
   loop1: for (let i = 0; i < pokemon.length; i++) {
     const types = pokemon[i].getElementsByClassName("types")
@@ -139,6 +145,19 @@ function filterByType() {
 document.getElementById("types").addEventListener("change", () => {
   filterByType()
 })
+
+function clickToFav() {
+  document.querySelectorAll("#list > .li").forEach(element => {
+    element.addEventListener("click", () => {
+      const favs = document.getElementById("favs")
+
+      const copy = element.cloneNode(true)
+
+      favs.appendChild(copy)
+      console.log(copy)
+    })
+  });
+}
 
 getPokemon()
 getTypes()
