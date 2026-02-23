@@ -149,16 +149,72 @@ document.getElementById("types").addEventListener("change", () => {
 function clickToFav() {
   document.querySelectorAll("#list > .li").forEach(element => {
     element.addEventListener("click", () => {
+      location.reload()
       const favs = document.getElementById("favs")
-
       const copy = element.cloneNode(true)
 
-      favs.appendChild(copy)
-      console.log(copy)
+      const value = {
+        'img': copy.querySelectorAll("img")[0].src,
+        'name': copy.getElementsByClassName("name")[0].textContent,
+        'types': []
+      }
+
+      // favs.appendChild(copy)
+
+      copy.getElementsByClassName("types")[0].querySelectorAll(".type").forEach(el => {
+        console.log(el.textContent)
+        value.types.push(el.textContent)
+      })
+      localStorage.setItem(copy.getElementsByClassName("name")[0].textContent, JSON.stringify(value))
+
     })
   });
 }
 
+function loadFavs() {
+  if (localStorage.length > 0) {
+
+    const list = document.getElementById("favs")
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const pokemon = JSON.parse(localStorage.getItem(localStorage.key(i)))
+
+      const li = document.createElement("div")
+      const img = document.createElement("img")
+      const name = document.createElement("div")
+      const types = document.createElement("div")
+
+
+      li.classList.add("li")
+      name.classList.add("name")
+      types.classList.add("types")
+
+      img.setAttribute("src", pokemon.img)
+      name.appendChild(document.createTextNode(pokemon.name))
+
+      for (let j = 0; j < pokemon.types.length; j++) {
+        const type = document.createElement("div")
+        type.classList.add("type")
+
+        type.appendChild(document.createTextNode(pokemon.types[j]))
+        types.appendChild(type)
+      }
+
+      li.appendChild(img)
+      li.appendChild(name)
+      li.appendChild(types)
+
+      li.addEventListener("click", () => {
+        localStorage.removeItem(localStorage.key(i))
+        location.reload()
+      })
+
+      list.appendChild(li)
+    }
+  }
+}
+
 getPokemon()
 getTypes()
+loadFavs()
 
