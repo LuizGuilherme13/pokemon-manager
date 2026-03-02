@@ -1,220 +1,208 @@
-async function getPokemon() {
-  const url = "https://pokeapi.co/api/v2/pokemon?limit=151&offset=0"
+document.addEventListener("DOMContentLoaded", () => {
+    localStorage.setItem("current_count", 0)
 
-  try {
-    const response = await fetch(url)
+    fetchPokemon()
+    getTypes()
+    loadFavorites()
+})
 
-    if (!response.ok) {
-      throw new Error(`response status: ${response.status}`)
+document.getElementById("search").addEventListener("keyup", () => {
+    filter()
+})
+
+document.getElementById("types").addEventListener("change", () => {
+    filter()
+})
+
+async function fetchPokemon() {
+    const currentCount = localStorage.getItem("current_count")
+
+    const url = `https://pokeapi.co/api/v2/pokemon?limit=60&offset=${currentCount}`
+
+    try {
+        const response = await fetch(url)
+
+        if (!response.ok) {
+            throw new Error(`response status: ${response.status}`)
+        }
+
+        const result = await response.json()
+
+        localStorage.setItem("total_count", result.count)
+        await populateList(result.results)
+
+    } catch (error) {
+        console.error(error.message)
     }
-
-    const result = await response.json()
-
-    await populateList(result)
-    clickToFav()
-
-  } catch (error) {
-    console.error(error.message)
-  }
 }
 
-async function detailPokemon(url) {
-  try {
-    const response = await fetch(url)
+async function populateList(data) {
+    const list = document.getElementById("list")
+    const cc = document.getElementById("current_count")
+    const tc = document.getElementById("total_count")
 
-    if (!response.ok) {
-      throw new Error(`response status: ${response.status}`)
-    }
+    cc.innerText = parseInt(localStorage.getItem("current_count"), 10) + 60
+    tc.innerText = localStorage.getItem("total_count")
 
-    const result = await response.json()
+    const promisses = []
+    data.forEach((p) => {
+        promisses.push(fetch(p.url).then(r => r.json()))
+    })
 
-    return result
+    const pokemon = await Promise.all(promisses)
 
-  } catch (error) {
-    console.error(error.message)
-  }
+    pokemon.forEach((p) => {
+        const pokeCard = createPokemonCard(p)
+
+        pokeCard.getElementsByClassName("fav-btn")[0].textContent = "favorite_border"
+        pokeCard.getElementsByClassName("fav-btn")[0].style.color = "black"
+        pokeCard.getElementsByClassName("fav-btn")[0].addEventListener("click", () => {
+            localStorage.setItem(p.id, JSON.stringify(p))
+            loadFavorites()
+        })
+        pokeCard.getElementsByClassName("fav-btn")[0].addEventListener("mouseover", () => {
+            pokeCard.getElementsByClassName("fav-btn")[0].textContent = "favorite"
+            pokeCard.getElementsByClassName("fav-btn")[0].style.color = "red"
+        })
+        pokeCard.getElementsByClassName("fav-btn")[0].addEventListener("mouseleave", () => {
+            pokeCard.getElementsByClassName("fav-btn")[0].textContent = "favorite_border"
+            pokeCard.getElementsByClassName("fav-btn")[0].style.color = "black"
+        })
+
+        list.appendChild(pokeCard)
+    })
 }
 
-async function populateList(pokemon) {
-  const list = document.getElementById("list")
+function filter() {
+    const pokemon = document.querySelectorAll("#list .li")
+    const input = document.getElementById("search")
+    const dropdown = document.getElementById("types")
 
-  for (let i = 0; i < pokemon.results.length; i++) {
-    const li = document.createElement("div")
+    pokemon.forEach(poke => {
+        const name = poke.getElementsByClassName("name")[0].textContent.toLowerCase()
+        let types = []
+        poke.getElementsByClassName("types")[0].querySelectorAll(".type").forEach(el => types.push(el.textContent.toLowerCase()))
+
+        if (!name.includes(input.value.toLowerCase()) || (dropdown.value.toLowerCase() != "all" && !types.includes(dropdown.value.toLowerCase()))) {
+            poke.style.display = "none"
+        } else {
+            poke.style.display = ""
+        }
+    });
+}
+
+async function getTypes() {
+    const url = "https://pokeapi.co/api/v2/type/?limit=21"
+
+    try {
+        const response = await fetch(url)
+
+        if (!response.ok) {
+            throw new Error(`response status: ${response.status} `)
+        }
+
+        const result = await response.json()
+
+        populateDropdown(result.results)
+
+    } catch (error) {
+        console.error(error.message)
+    }
+}
+
+function populateDropdown(types) {
+    const dropdown = document.getElementById("types")
+
+    for (let i = 0; i < types.length; i++) {
+        const opt = document.createElement("option")
+        opt.value = types[i].name
+        opt.innerText = types[i].name[0].toUpperCase() + types[i].name.slice(1)
+
+        dropdown.appendChild(opt)
+    }
+}
+
+function loadFavorites() {
+    if (localStorage.length > 0) {
+        const favorites = document.getElementById("favs")
+        favorites.innerHTML = ""
+
+        for (let i = 0; i < localStorage.length; i++) {
+            if (localStorage.key(i) == "current_count" || localStorage.key(i) == "total_count") {
+                continue
+            }
+
+            const pokemon = localStorage.getItem(localStorage.key(i))
+
+            const pokeCard = createPokemonCard(JSON.parse(pokemon))
+
+            pokeCard.getElementsByClassName("fav-btn")[0].textContent = "favorite"
+            pokeCard.getElementsByClassName("fav-btn")[0].style.color = "red"
+            pokeCard.getElementsByClassName("fav-btn")[0].addEventListener("click", () => {
+                localStorage.removeItem(localStorage.key(i))
+                loadFavorites()
+            })
+            pokeCard.getElementsByClassName("fav-btn")[0].addEventListener("mouseover", () => {
+                pokeCard.getElementsByClassName("fav-btn")[0].textContent = "favorite_border"
+                pokeCard.getElementsByClassName("fav-btn")[0].style.color = "black"
+            })
+            pokeCard.getElementsByClassName("fav-btn")[0].addEventListener("mouseleave", () => {
+                pokeCard.getElementsByClassName("fav-btn")[0].textContent = "favorite"
+                pokeCard.getElementsByClassName("fav-btn")[0].style.color = "red"
+            })
+
+            favorites.appendChild(pokeCard)
+        }
+    }
+}
+
+function createPokemonCard(pokemon) {
+    const pokeCard = document.createElement("div")
+    const title = document.createElement("div")
+    const pokeID = document.createElement("div")
+    const favBtn = document.createElement("i")
     const img = document.createElement("img")
     const name = document.createElement("div")
     const types = document.createElement("div")
 
-    const details = await detailPokemon(pokemon.results[i].url)
+    pokeID.classList.add("poke-id")
+    pokeID.appendChild(document.createTextNode(`#${String(pokemon.id).padStart(4, "0")}`))
+    title.appendChild(pokeID)
 
-    li.id = pokemon.results[i].url.substring(34, pokemon.results[i].url.length - 1)
-    li.classList.add("li")
+    favBtn.classList.add("material-icons", "fav-btn")
+    title.appendChild(favBtn)
 
-    img.setAttribute("src", details.sprites.front_default)
-    li.appendChild(img)
+    img.setAttribute("src", pokemon.sprites.front_default)
 
     name.classList.add("name")
-    name.appendChild(document.createTextNode(`${pokemon.results[i].name}`))
-    li.appendChild(name)
+    name.appendChild(document.createTextNode(`${pokemon.name[0].toUpperCase() + pokemon.name.slice(1)}`))
+
 
     types.classList.add("types")
+    name.classList.add("name")
+    pokeID.classList.add("poke-id")
+    title.classList.add("title")
+    pokeCard.classList.add("li")
 
-    for (let j = 0; j < details.types.length; j++) {
-      const type = document.createElement("div")
-      type.classList.add("type")
-
-      type.appendChild(document.createTextNode(details.types[j].type.name))
-      types.appendChild(type)
-    }
-
-    li.appendChild(types)
-    list.appendChild(li)
-  }
-}
-
-function filterByName() {
-  const pokemon = document.querySelectorAll("#list .li")
-  const input = document.getElementById("search")
-
-  for (let i = 0; i < pokemon.length; i++) {
-    // console.log(pokemon[i].getElementsByClassName("name")[0].textContent)
-
-    if (!pokemon[i].getElementsByClassName("name")[0].textContent.includes(input.value)) {
-      pokemon[i].classList.add("hidden")
-    } else {
-      pokemon[i].classList.remove("hidden")
-    }
-  }
-
-}
-
-document.getElementById("search").addEventListener("keyup", (e) => {
-  filterByName()
-})
-
-async function getTypes() {
-  const url = "https://pokeapi.co/api/v2/type/?limit=21"
-
-  try {
-    const response = await fetch(url)
-
-    if (!response.ok) {
-      throw new Error(`response status: ${response.status}`)
-    }
-
-    const result = await response.json()
-
-    populateDropdown(result.results)
-
-  } catch (error) {
-    console.error(error.message)
-  }
-}
-
-function populateDropdown(types) {
-  const dropdown = document.getElementById("types")
-
-  for (let i = 0; i < types.length; i++) {
-    const opt = document.createElement("option")
-    opt.value = types[i].name
-    opt.innerText = types[i].name
-
-    dropdown.appendChild(opt)
-  }
-}
-
-function filterByType() {
-  const dropdown = document.getElementById("types")
-  const pokemon = document.querySelectorAll("#list .li")
-
-  loop1: for (let i = 0; i < pokemon.length; i++) {
-    const types = pokemon[i].getElementsByClassName("types")
-
-    let same = false
-    loop2: for (let j = 0; j < types[0].children.length; j++) {
-      if (types[0].children[j].textContent != dropdown.value && dropdown.value != "all" && !same) {
-        pokemon[i].style.display = "none"
-      } else {
-        pokemon[i].style.display = ""
-        same = true
-        break loop2
-      }
-    }
-  }
-}
-
-document.getElementById("types").addEventListener("change", () => {
-  filterByType()
-})
-
-function clickToFav() {
-  document.querySelectorAll("#list > .li").forEach(element => {
-    element.addEventListener("click", () => {
-      location.reload()
-      const favs = document.getElementById("favs")
-      const copy = element.cloneNode(true)
-
-      const value = {
-        'img': copy.querySelectorAll("img")[0].src,
-        'name': copy.getElementsByClassName("name")[0].textContent,
-        'types': []
-      }
-
-      // favs.appendChild(copy)
-
-      copy.getElementsByClassName("types")[0].querySelectorAll(".type").forEach(el => {
-        console.log(el.textContent)
-        value.types.push(el.textContent)
-      })
-      localStorage.setItem(copy.getElementsByClassName("name")[0].textContent, JSON.stringify(value))
-
-    })
-  });
-}
-
-function loadFavs() {
-  if (localStorage.length > 0) {
-
-    const list = document.getElementById("favs")
-
-    for (let i = 0; i < localStorage.length; i++) {
-      const pokemon = JSON.parse(localStorage.getItem(localStorage.key(i)))
-
-      const li = document.createElement("div")
-      const img = document.createElement("img")
-      const name = document.createElement("div")
-      const types = document.createElement("div")
-
-
-      li.classList.add("li")
-      name.classList.add("name")
-      types.classList.add("types")
-
-      img.setAttribute("src", pokemon.img)
-      name.appendChild(document.createTextNode(pokemon.name))
-
-      for (let j = 0; j < pokemon.types.length; j++) {
+    for (let i = 0; i < pokemon.types.length; i++) {
         const type = document.createElement("div")
         type.classList.add("type")
+        type.classList.add(`${pokemon.types[i].type.name}`)
+        type.appendChild(document.createTextNode(pokemon.types[i].type.name.toUpperCase()))
 
-        type.appendChild(document.createTextNode(pokemon.types[j]))
         types.appendChild(type)
-      }
-
-      li.appendChild(img)
-      li.appendChild(name)
-      li.appendChild(types)
-
-      li.addEventListener("click", () => {
-        localStorage.removeItem(localStorage.key(i))
-        location.reload()
-      })
-
-      list.appendChild(li)
     }
-  }
+
+    pokeCard.appendChild(title)
+    pokeCard.appendChild(img)
+    pokeCard.appendChild(name)
+    pokeCard.appendChild(types)
+
+    return pokeCard
 }
 
-getPokemon()
-getTypes()
-loadFavs()
+function nextPage() {
+    localStorage.setItem("current_count", parseInt(localStorage.getItem("current_count"), 10) + 60)
 
+    fetchPokemon()
+}

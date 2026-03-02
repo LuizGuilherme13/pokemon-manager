@@ -2,33 +2,54 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./style.css">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Document</title>
 </head>
 
 <body>
+    <header>
+        <h1 style="color: #feca1b;">PokéManager</h1>
+        <div style="display: flex; padding: 5px; gap: 5px;">
+            <input type="text" id="search" placeholder="Search by name">
+            <select id="types">
+                <option value="all">All</option>
+            </select>
+        </div>
+    </header>
 
-  <input type="text" id="search" placeholder="Buscar pelo nome">
-  <select id="types">
-    <option value="all">all</option>
-  </select>
+    <main>
+        <h2 style="margin-left: 10px; margin-top: 20px; display: flex; align-items: center; justify-content: start;">
+            <i class="material-icons" style="color: red;">favorite</i>
+            My Favorites
+        </h2>
+        <hr>
+        <div id="favs"></div>
 
-  <div style="padding: 10px 30px 10px 30px;">
-    <h2>Meus Favoritos</h2>
-    <div style="overflow: auto;">
-      <div id="favs"></div>
-    </div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h2
+                style="margin-left: 10px; margin-top: 20px; display: flex; align-items: center; justify-content: center;">
+                <i class="material-icons" style="color: #3399ff;">storage</i>
+                Global Database
+            </h2>
+        </div>
+        <hr>
+        <div id="list"></div>
+    </main>
 
-    <h2>Base de Dados Global</h2>
-    <div style="overflow: auto;">
-      <div id="list"></div>
-    </div>
-  </div>
-
-
-  <script src="./main.js"></script>
+    <footer>
+        <div id="page" style="display: flex; align-items: center; justify-content: end; gap: 5px; margin: 10px">
+            <div style="display: flex; gap: 2px;">
+                <div id="current_count"></div> / <div id="total_count"></div>
+            </div>
+            <button style="cursor: pointer; width: 60px; height: 30px; margin-right: 10px;" onclick="nextPage()">
+                <i class="material-icons">navigate_next</i>
+            </button>
+        </div>
+    </footer>
+    <script src="./main.js"></script>
 </body>
 
 </html>
