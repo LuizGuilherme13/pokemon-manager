@@ -4,15 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/poke-card.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>Document</title>
 </head>
 
 <body>
     <header>
-        <h1 style="color: #feca1b;">PokéManager</h1>
-        <div style="display: flex; padding: 5px; gap: 5px;">
+        <h1 id="page-title">PokéManager</h1>
+        <div id="filter-container">
             <input type="text" id="search" placeholder="Search by name">
             <select id="types">
                 <option value="all">All</option>
@@ -21,35 +23,36 @@
     </header>
 
     <main>
-        <h2 style="margin-left: 10px; margin-top: 20px; display: flex; align-items: center; justify-content: start;">
-            <i class="material-icons" style="color: red;">favorite</i>
+        <h2 id="my-favorites-title">
+            <i class="material-icons">favorite</i>
             My Favorites
         </h2>
-        <hr>
-        <div id="favs"></div>
 
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <h2
-                style="margin-left: 10px; margin-top: 20px; display: flex; align-items: center; justify-content: center;">
-                <i class="material-icons" style="color: #3399ff;">storage</i>
-                Global Database
-            </h2>
-        </div>
         <hr>
-        <div id="list"></div>
+
+        <div id="my-favorites-content"></div>
+
+        <h2 id="global-database-title">
+            <i class="material-icons">storage</i>
+            Global Database
+        </h2>
+
+        <hr>
+
+        <div id="global-database-content"></div>
     </main>
 
     <footer>
-        <div id="page" style="display: flex; align-items: center; justify-content: end; gap: 5px; margin: 10px">
-            <div style="display: flex; gap: 2px;">
+        <div id="page">
+            <div>
                 <div id="current_count"></div> / <div id="total_count"></div>
             </div>
-            <button style="cursor: pointer; width: 60px; height: 30px; margin-right: 10px;" onclick="nextPage()">
+            <button id="next-page">
                 <i class="material-icons">navigate_next</i>
             </button>
         </div>
     </footer>
-    <script src="./main.js"></script>
+    <script type="module" src="./js/main.js"></script>
 </body>
 
 </html>

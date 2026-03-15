@@ -1,0 +1,49 @@
+#filter-container {
+    display: flex;
+    padding: 5px;
+    gap: 5px;
+}
+
+.fav-btn {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+#my-favorites-title {
+    margin-left: 10px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+
+    & i {
+        color: red;
+    }
+}
+
+#my-favorites-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+#global-database-title {
+    margin-left: 10px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+
+    & i {
+        color: #3399ff;
+    }
+}
+
+#global-database-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
